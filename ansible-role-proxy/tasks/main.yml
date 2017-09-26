@@ -1,0 +1,51 @@
+---
+
+- name: Ensure nginx-repository is installed
+  yum: name=epel-release state=installed
+
+- name: Ensure nginx is installed
+  yum: name=nginx state=installed
+
+#- name: Add nginx config upstreams
+#  template: >
+#    src=nginx-consul-upstreams.conf
+#    dest=/etc/nginx/conf.d/nginx-consul-upstreams.conf
+#
+#- name: Add nginx config endpoints
+#  #template: >
+#    src=nginx-consul-endpoints.conf
+#    dest=/etc/nginx/default.d/nginx-consul-endpoints.conf
+
+- name: Ensure unzip is installed (required by unarchive module)
+  yum: name=unzip state=installed
+
+- name: Ensure wget is installed
+  yum: name=wget state=installed
+
+- name: Descargamos consul template
+  get_url: >
+    url={{ consul_template_url }}
+    dest=/tmp/consul-template.zip
+
+- name: Unzip Consul-template to installation directory
+  command: unzip /tmp/consul-template.zip -d {{ consul_template_dir }}
+  args:
+    creates: "{{ consul_template_dir }}"
+
+- name: Add consul-template config nginx upstreams
+  template: >
+    src=nginx-consultemplate-upstreams.conf
+    dest={{ consul_template_dir }}/nginx-consultemplate-upstreams.conf
+
+- name: Add consul-template config nginx endpoints
+  template: >
+    src=nginx-consultemplate-endpoints.conf
+    dest={{ consul_template_dir }}/nginx-consultemplate-endpoints.conf
+
+- cron:
+    name: "renew nginx upstreams consul config with consul-template"
+    job: '/etc/consul-template/consul-template -template "{{ consul_template_dir }}/nginx-consultemplate-upstreams.conf:/etc/nginx/conf.d/nginx-consultemplate-upstreams.conf:nginx -s reload" -once'
+
+- cron:
+    name: "renew nginx endpoints consul config with consul-template"
+    job: '/etc/consul-template/consul-template -template "{{ consul_template_dir }}/nginx-consultemplate-endpoints.conf:/etc/nginx/default.d/nginx-consultemplate-endpoints.conf:nginx -s reload" -once'

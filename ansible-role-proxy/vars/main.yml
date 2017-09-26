@@ -1,0 +1,4 @@
+---
+
+consul_template_url: https://releases.hashicorp.com/consul-template/0.19.3/consul-template_0.19.3_linux_amd64.zip
+consul_template_dir: /usr/bin/consul-template

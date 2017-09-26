@@ -1,0 +1,43 @@
+---
+
+- name: Add InfluxData repository file [RHEL/CentOS]
+  template:
+    src: influxdata.repo.j2
+    dest: /etc/yum.repos.d/influxdata.repo
+
+- name: Install Telegraf packages [RHEL/CentOS]
+  yum:
+    name: telegraf
+    state: latest
+    update_cache: yes
+
+- name: Set templatized Telegraf configuration
+  template:
+    src: telegraf.conf.j2
+    dest: "{{ telegraf_configuration_dir }}/telegraf.conf"
+    force: yes
+    backup: yes
+    owner: telegraf
+    group: telegraf
+    mode: 0744
+
+- name: Modify user Telegraf should run as [systemd]
+  command: sed -i s/User=.*/User={{ telegraf_runas_user }}/ /usr/lib/systemd/system/telegraf.service
+  register: telegraf_unit_file_updated
+
+- name: Reload systemd configuration [systemd]
+  command: systemctl daemon-reload
+  when: telegraf_unit_file_updated is defined and telegraf_unit_file_updated.changed
+
+- name: Start the Telegraf service
+  service: name=telegraf state=restarted enabled=yes pattern=/usr/bin/telegraf
+  register: telegraf_started
+
+- name: Collect service status
+  command: service telegraf status
+  register: telegraf_service_status
+
+- name: Assert status of Telegraf service
+  assert:
+    that:
+      - "telegraf_service_status.rc == 0"

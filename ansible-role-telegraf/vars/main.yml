@@ -1,0 +1,7 @@
+# Path for finding Telegraf data. Added for backwards-compatibility.
+telegraf_binary_path: /usr/bin/telegraf
+telegraf_configuration_dir: /etc/telegraf
+
+# The user and group telegraf should run under (should be set to telegraf unless needed otherwise)
+telegraf_runas_user: telegraf
+telegraf_runas_group: telegraf

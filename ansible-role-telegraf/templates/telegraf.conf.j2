@@ -1,0 +1,35 @@
+[agent]
+  interval = "10s"
+  hostname = "{{ inventory_hostname }}"
+
+# Statsd Server
+[[inputs.statsd]]
+  ## Address and port to host UDP listener on
+  service_address = ":8125"
+
+  ## separator to use between elements of a statsd metric
+  # metric_separator = "_"
+
+# Configuration for influxdb server to send metrics to
+[[outputs.influxdb]]
+  ## The full HTTP or UDP endpoint URL for your InfluxDB instance.
+  ## Multiple urls can be specified as part of the same cluster,
+  ## this means that only ONE of the urls will be written to each interval.
+  # urls = ["udp://localhost:8089"] # UDP endpoint example
+  urls = ["http://influxdb.service.consul:8086"] # required
+  database = "telegraf"
+
+# Gather health check statuses from services registered in Consul
+[[inputs.consul]]
+  ## Most of these values defaults to the one configured on a Consul's agent level.
+  ## Optional Consul server address (default: "")
+  address = "consul.service.consul:8500"
+
+# Generic TCP listener
+[[inputs.tcp_listener]]
+  ## Address and port to host TCP listener on
+  service_address = ":8094"
+
+[[inputs.cpu]]
+  percpu = true
+  totalcpu = true
