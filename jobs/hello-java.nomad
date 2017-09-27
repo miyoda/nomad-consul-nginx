@@ -17,7 +17,7 @@ job "hello-java" {
         jvm_options = ["-XX:-UseCompressedOops", "-Xmx2048m", "-Xms256m"]
       }
       artifact {
-       source = "https://bitbucket.org/miyoda/nomad-repo/raw/4efb03e04a2b896610d2f86fccc2a183a482bb70/hello.jar"
+       source = "https://github.com/miyoda/nomad-consul-nginx/blob/master/jobs/hello.jar?raw=true"
       }
       resources {
         cpu    = 500
