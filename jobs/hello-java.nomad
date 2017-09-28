@@ -10,7 +10,7 @@ job "hello-java" {
     count = 2
 
     task "hello-java" {
-      driver = "hello-java"
+      driver = "java"
 
       config {
         jar_path = "local/hello.jar"

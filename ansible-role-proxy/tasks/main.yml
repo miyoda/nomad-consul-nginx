@@ -44,8 +44,8 @@
 
 - cron:
     name: "renew nginx upstreams consul config with consul-template"
-    job: '/etc/consul-template/consul-template -template "{{ consul_template_dir }}/nginx-consultemplate-upstreams.conf:/etc/nginx/conf.d/nginx-consultemplate-upstreams.conf:nginx -s reload" -once'
+    job: '{{ consul_template_dir }}/consul-template -template "{{ consul_template_dir }}/nginx-consultemplate-upstreams.conf:/etc/nginx/conf.d/nginx-consultemplate-upstreams.conf:nginx -s reload" -once'
 
 - cron:
     name: "renew nginx endpoints consul config with consul-template"
-    job: '/etc/consul-template/consul-template -template "{{ consul_template_dir }}/nginx-consultemplate-endpoints.conf:/etc/nginx/default.d/nginx-consultemplate-endpoints.conf:nginx -s reload" -once'
+    job: '{{ consul_template_dir }}/consul-template -template "{{ consul_template_dir }}/nginx-consultemplate-endpoints.conf:/etc/nginx/default.d/nginx-consultemplate-endpoints.conf:nginx -s reload" -once'
