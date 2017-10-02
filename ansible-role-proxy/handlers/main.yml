@@ -1,0 +1,7 @@
+---
+
+- name: restart consul-template
+  service: name=consul-template state=restarted
+
+- name: reload consul-template
+  service: name=consul-template state=reloaded

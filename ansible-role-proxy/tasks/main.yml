@@ -6,15 +6,16 @@
 - name: Ensure nginx is installed
   yum: name=nginx state=installed
 
-#- name: Add nginx config upstreams
-#  template: >
-#    src=nginx-consul-upstreams.conf
-#    dest=/etc/nginx/conf.d/nginx-consul-upstreams.conf
-#
-#- name: Add nginx config endpoints
-#  #template: >
-#    src=nginx-consul-endpoints.conf
-#    dest=/etc/nginx/default.d/nginx-consul-endpoints.conf
+- name: Fix allow proxy nginx to different port
+  command: /usr/sbin/setsebool -P httpd_can_network_connect true
+
+- name: Ensure nginx service is started and enabled on boot
+  service: name=nginx state=started enabled=yes
+
+
+
+
+
 
 - name: Ensure unzip is installed (required by unarchive module)
   yum: name=unzip state=installed
@@ -42,10 +43,19 @@
     src=nginx-consultemplate-endpoints.conf
     dest={{ consul_template_dir }}/nginx-consultemplate-endpoints.conf
 
-- cron:
-    name: "renew nginx upstreams consul config with consul-template"
-    job: '{{ consul_template_dir }}/consul-template -template "{{ consul_template_dir }}/nginx-consultemplate-upstreams.conf:/etc/nginx/conf.d/nginx-consultemplate-upstreams.conf:nginx -s reload" -once'
+- name: If consul-template.service configuration already exists, remove it
+  file: >
+    state=absent
+    path=/etc/systemd/system/consul-template.service
 
-- cron:
-    name: "renew nginx endpoints consul config with consul-template"
-    job: '{{ consul_template_dir }}/consul-template -template "{{ consul_template_dir }}/nginx-consultemplate-endpoints.conf:/etc/nginx/default.d/nginx-consultemplate-endpoints.conf:nginx -s reload" -once'
+- name: Create consul-template.service configuration
+  template: >
+    src=consul-template.service.j2
+    dest=/etc/systemd/system/consul-template.service
+    owner=root
+    group=root
+    mode=0644
+  notify: restart consul-template
+
+- name: Ensure Consul-template service is started and enabled on boot
+  service: name=consul-template state=started enabled=yes

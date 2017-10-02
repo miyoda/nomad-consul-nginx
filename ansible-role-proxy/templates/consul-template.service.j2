@@ -1,0 +1,12 @@
+[Unit]
+Description=Consul Template Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart={{ consul_template_dir }}/consul-template -template "{{ consul_template_dir }}/nginx-consultemplate-upstreams.conf:/etc/nginx/conf.d/nginx-consultemplate-upstreams.conf:nginx -s reload" -template "{{ consul_template_dir }}/nginx-consultemplate-endpoints.conf:/etc/nginx/default.d/nginx-consultemplate-endpoints.conf:nginx -s reload"
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
